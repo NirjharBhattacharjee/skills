@@ -10,20 +10,24 @@ callouts; it also governs work in this repo itself.
 1. **Isolate — `/new-feature`.** Every new feature starts in a fresh Git
    worktree branched from `origin/main` so agents can work in parallel
    without conflicts. Never build on `main`.
-2. **Build — `/code-structure`.** Write code to the service-layer
-   architecture: actions/boundaries orchestrate the "why/when", a service
-   layer owns the reusable "how", with explicit inputs and structured
-   returns.
+2. **Build — `/code-structure` and `/ponytail`.** Write code to the
+   service-layer architecture: actions/boundaries orchestrate the
+   "why/when", a service layer owns the reusable "how", with explicit inputs
+   and structured returns. Keep each change as small as it can be:
+   `/ponytail` asks whether the code needs to exist at all, then reaches for
+   what the codebase, the standard library, or an installed dependency
+   already does before writing anything new. Small doesn't mean shallow:
+   read the code a change touches first, and fix bugs at the root cause.
 3. **Prove — `/evidence-driven-testing`.** Verify with the repo's checks
    plus runtime evidence. Capture the **before** state while reproducing the
    issue — prior to fixing it, when it is cheapest — and the **after** once
    the change works.
-4. **Ship — `/before-and-after`, then `/greploop`.** Open the PR with
-   before/after proof embedded in the description (screenshot or video
+4. **Ship — `/before-and-after`, then `/coderabbit-loop`.** Open the PR
+   with before/after proof embedded in the description (screenshot or video
    whenever the change has a visible surface; measured numbers or output
-   pairs when it doesn't). Run `/greploop` — or `/greploop-apps` when the PR
-   exceeds Greptile's file-count limit — until Greptile reports **5/5 with
-   zero unresolved comments**. Finish by presenting the PR URL.
+   pairs when it doesn't). Run `/coderabbit-loop` until CodeRabbit finishes
+   a review of the latest commit with **zero actionable comments and zero
+   unresolved threads**. Finish by presenting the PR URL.
 
 Ship-beat notes:
 
@@ -34,6 +38,12 @@ Ship-beat notes:
   `AGENT_BROWSER_ARGS="--no-sandbox"` for the capture command.
 - The default upload host (0x0.st) is public — fine for ordinary UI shots;
   pass `--upload-url` for anything sensitive.
+- Every push starts a CodeRabbit review, and the free plan allows about one
+  review an hour across the whole account. Don't post `@coderabbitai review`
+  after a push, and when a review is rate limited, wait the time CodeRabbit
+  gives before asking once more.
+- CodeRabbit doesn't know the repo's hard invariants. Check each suggestion
+  against them before applying it.
 
 ## Writing for humans
 
@@ -73,8 +83,8 @@ wrote or changed, not to prose you didn't touch.
 6. Open the PR. The body must explain what changed, how it was tested (every
    claim backed by evidence), before/after proof, and any risks or follow-up
    work. Run the title and body through `/unslop` before posting.
-7. Run `/greploop` (or `/greploop-apps`) until **5/5 with zero unresolved
-   comments**.
+7. Run `/coderabbit-loop` until CodeRabbit's latest review has **zero
+   actionable comments and zero unresolved threads**.
 8. End by presenting the PR URL.
 
 Do not merge the PR unless explicitly instructed. Keep the worktree until
@@ -93,6 +103,6 @@ infrastructure (stubs, fixtures), and anything that can't be tested locally.
 |---|---|
 | `new-feature`, `code-structure`, `evidence-driven-testing` | this repo |
 | `before-and-after` | this repo, vendored from [vercel-labs/before-and-after](https://github.com/vercel-labs/before-and-after) (or `npx skills add vercel-labs/before-and-after`) |
-| `greploop` | this repo, vendored from [greptileai/skills](https://github.com/greptileai/skills) |
-| `greploop-apps` | this repo (local variant of greploop for huge PRs; no separate upstream) |
+| `coderabbit-loop` | this repo, rewritten for CodeRabbit from greptileai's [greploop](https://github.com/greptileai/skills) (MIT, license kept in the folder) |
+| `ponytail` | this repo, vendored from [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (MIT, license included in the folder); the core skill only, unchanged |
 | `unslop` | this repo, vendored from [cursor/plugins (pstack)](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop); frontmatter edited so agents apply it unprompted (`disable-model-invocation` dropped, description scoped to text the agent writes or edits for people), body untouched |
