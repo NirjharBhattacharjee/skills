@@ -37,21 +37,21 @@ Use it whenever a change needs verifiable evidence that it works, instead of pro
 
 > The recorder needs `ffmpeg`/`ffprobe` built with `libx264` and the `ass` filter, plus a screen-capture source: X11 (`DISPLAY`) or wlroots Wayland (`wf-recorder`; GNOME/KDE are not supported) on Linux, Screen Recording permission on macOS, any standard ffmpeg on Windows. `python3 scripts/evidence.py doctor` reports both. The raw capture is MPEG-TS, so a crashed or hard-killed recorder still yields usable evidence. The headless path needs only a running app and a scriptable browser (Playwright via npx). Posting evidence requires the `gh` CLI (or equivalent). `tests/test_evidence.py` smoke-tests the recorder end to end with a synthetic video source (`python3 -m pytest tests/ -q`).
 
-### [greploop](greploop/SKILL.md)
+### [coderabbit-loop](coderabbit-loop/SKILL.md)
 
-Iteratively fixes a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives a perfect review: 5/5 confidence with zero unresolved comments. Triggers the review, fixes actionable comments, resolves threads, pushes, and repeats, up to `--max-iterations` cycles (default 10).
+Iteratively fixes a PR (GitHub) or MR (GitLab) until CodeRabbit finishes a review of the latest commit with zero actionable comments and zero unresolved threads. It waits for the `CodeRabbit` check run, reads the findings from inline threads, the review body and the walkthrough summary, fixes the real ones, resolves threads, pushes, and repeats, up to `--max-iterations` cycles (default 10). Pushing is what starts each review: the loop only posts `@coderabbitai review` when no review starts on its own, or once after a rate-limit wait.
 
-Use it to get a PR to a clean Greptile review before merge.
+Use it to get a PR to a clean CodeRabbit review before merge.
 
-> Vendored from [greptileai/skills](https://github.com/greptileai/skills) (MIT, license included in the folder). Requires Greptile installed on the repo and an authenticated `gh`/`glab`/`p4` CLI.
+> Rewritten for CodeRabbit from greptileai's [greploop](https://github.com/greptileai/skills) (MIT, license kept in the folder). It replaces `greploop` and `greploop-apps`. CodeRabbit has no confidence score and no way around its file-count limit, and doesn't support Perforce, so the loop has no 5/5 target, no `-apps` variant and no Perforce path. Requires the CodeRabbit app on the repo and an authenticated `gh`/`glab` CLI. CodeRabbit's free plan allows about one review an hour across the whole account, so the loop waits out a rate limit once and then stops.
 
-### [greploop-apps](greploop-apps/SKILL.md)
+### [ponytail](ponytail/SKILL.md)
 
-The same loop as greploop, but it triggers reviews by tagging `@greptile-apps`, which bypasses Greptile's file-count limit on huge PRs that the plain `@greptile` mention refuses to review. When no check run appears, it falls back to polling Greptile's edited summary comment.
+Makes the agent pick the smallest change that works. It runs a ladder before writing code: does this need to exist, does the codebase already have it, does the standard library, a native platform feature, or an installed dependency cover it, and only then the minimum new code. It still asks the agent to read the code a change touches first and to fix bugs at the root cause.
 
-Use it when greploop's trigger gets "Too many files changed for review".
+Use it on any coding task, or when a change is growing more abstraction, boilerplate or dependencies than it needs.
 
-> Local variant derived from greptileai's greploop (MIT, license included in the folder); no separate upstream.
+> Vendored from [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (MIT, license included in the folder). This is the core skill only, unchanged; the upstream plugin also has `ponytail-review`, `ponytail-audit` and others.
 
 ### [new-feature](new-feature/SKILL.md)
 
@@ -78,7 +78,7 @@ Use it when:
 
 ## Workflow
 
-[`AGENTS.md`](AGENTS.md) ties the skills together into a four-beat workflow: isolate (`new-feature`) → build (`code-structure`) → prove (`evidence-driven-testing`) → ship (`before-and-after` + `greploop`), with `unslop` applied to everything written for humans along the way. Drop it into a repo alongside the skills and fill in the repo-specific callouts (checks, invariants, environment).
+[`AGENTS.md`](AGENTS.md) ties the skills together into a four-beat workflow: isolate (`new-feature`) → build (`code-structure` + `ponytail`) → prove (`evidence-driven-testing`) → ship (`before-and-after` + `coderabbit-loop`), with `unslop` applied to everything written for humans along the way. Drop it into a repo alongside the skills and fill in the repo-specific callouts (checks, invariants, environment).
 
 ## Installation
 
